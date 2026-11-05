@@ -1,3 +1,4 @@
+
 # 🌱 Intelligent Crop Recommendation System
 
 A Streamlit web app that recommends the optimal crop to plant given soil nutrients (N, P, K) and climate conditions (temperature, humidity, pH, rainfall). Built as the capstone for **FUSE AI-201 — Group 11**.
