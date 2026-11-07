@@ -5,23 +5,19 @@ import joblib
 import numpy as np
 import streamlit as st
 
-# --------------------------------------------------
-# Page Configuration
-# --------------------------------------------------
 st.set_page_config(
     page_title="Crop Recommendation",
     page_icon="🌱",
     layout="centered",
 )
 
-# Use a path relative to this file so the app works from any working directory.
 APP_DIR = Path(__file__).resolve().parent
 MODEL_PATH = APP_DIR / "crop_recommendation_model.pkl"
 
 
 @st.cache_resource
 def load_artifact():
-    """Load the trained model artifact and validate its structure."""
+    """Load the model and its matching preprocessing artifacts."""
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
@@ -31,16 +27,19 @@ def load_artifact():
         raise TypeError("Expected the model artifact to be a dictionary.")
 
     required_keys = {
-    "model",
-    "scaler",
-    "label_encoder",
-    "classes",
-    "n_classes",
-    "test_accuracy",
-}
+        "model",
+        "scaler",
+        "label_encoder",
+        "classes",
+        "n_classes",
+        "test_accuracy",
+    }
     missing = sorted(required_keys - set(artifact.keys()))
     if missing:
-        raise KeyError(f"Model artifact missing required keys: {missing}")
+        raise KeyError(
+            f"Model artifact is missing {missing}. "
+            "Re-export the model with its fitted scaler and label encoder."
+        )
 
     return artifact
 
@@ -49,23 +48,21 @@ with st.spinner("Loading crop recommendation model..."):
     art = load_artifact()
 
 model = art["model"]
+scaler = art["scaler"]
 le = art["label_encoder"]
 
-# --------------------------------------------------
-# Integrity Check
-# --------------------------------------------------
-if not (len(art["classes"]) == art["n_classes"] == len(le.classes_)):
+if not (
+    len(art["classes"])
+    == art["n_classes"]
+    == len(le.classes_)
+    == len(model.classes_)
+):
     st.error(
-        f"Artifact mismatch: "
-        f"n_classes={art['n_classes']}, "
-        f"classes={len(art['classes'])}, "
-        f"encoder={len(le.classes_)}"
+        "Model artifact mismatch: the model, classes, and label encoder "
+        "do not have the same number of classes."
     )
     st.stop()
 
-# --------------------------------------------------
-# Header
-# --------------------------------------------------
 st.title("🌱 Intelligent Crop Recommendation System")
 st.caption(
     f"FUSE AI-201 | Group 11 | "
@@ -73,9 +70,6 @@ st.caption(
     f"({art['test_accuracy']:.2%} test accuracy)"
 )
 
-# --------------------------------------------------
-# Inputs
-# --------------------------------------------------
 with st.form("crop_form"):
     st.subheader("Soil & Climate Measurements")
 
@@ -88,21 +82,18 @@ with st.form("crop_form"):
             max_value=200.0,
             value=90.0,
         )
-
         P = st.number_input(
             "Phosphorus (P) mg/kg",
             min_value=0.0,
             max_value=200.0,
             value=42.0,
         )
-
         K = st.number_input(
             "Potassium (K) mg/kg",
             min_value=0.0,
             max_value=250.0,
             value=43.0,
         )
-
         ph = st.slider(
             "Soil pH",
             min_value=0.0,
@@ -118,7 +109,6 @@ with st.form("crop_form"):
             max_value=60.0,
             value=20.8,
         )
-
         humidity = st.slider(
             "Humidity (%)",
             min_value=0.0,
@@ -126,7 +116,6 @@ with st.form("crop_form"):
             value=82.0,
             step=0.1,
         )
-
         rainfall = st.number_input(
             "Rainfall (mm)",
             min_value=0.0,
@@ -136,12 +125,9 @@ with st.form("crop_form"):
 
     submitted = st.form_submit_button(
         "🌾 Recommend Crop",
-        use_container_width=True,
+        width="stretch",
     )
 
-# --------------------------------------------------
-# Prediction
-# --------------------------------------------------
 if submitted:
     try:
         checks = {
@@ -158,66 +144,63 @@ if submitted:
             if not isfinite(value) or not (low <= value <= high):
                 st.error(
                     f"Invalid {name}: {value}. "
-                    f"Expected range [{low}, {high}]"
+                    f"Expected range [{low}, {high}]."
                 )
                 st.stop()
 
+        # Keep this order identical to the training feature order:
+        # N, P, K, temperature, humidity, ph, rainfall.
         row = np.array(
-    [[N, P, K, temperature, humidity, ph, rainfall]],
-    dtype=np.float64,
-)
+            [[N, P, K, temperature, humidity, ph, rainfall]],
+            dtype=np.float64,
+        )
 
-scaled_row = art["scaler"].transform(row)
-proba = model.predict_proba(scaled_row)[0]
+        # Apply the same fitted scaler that was used during model training.
+        scaled_row = scaler.transform(row)
+        proba = model.predict_proba(scaled_row)[0]
 
-if len(proba) != len(model.classes_):
-    raise ValueError("Model probability output does not match model classes.")
+        if len(proba) != len(model.classes_):
+            raise ValueError(
+                "Model probability output does not match model classes."
+            )
 
-idx = int(np.argmax(proba))
-class_id = int(model.classes_[idx])
-crop = le.inverse_transform([class_id])[0]
-confidence = float(proba[idx])
+        # Use the model's class IDs to look up the matching crop label.
+        idx = int(np.argmax(proba))
+        class_id = int(model.classes_[idx])
+        crop = le.inverse_transform([class_id])[0]
+        confidence = float(proba[idx])
 
-        # ------------------------------------------
-        # Results
-        # ------------------------------------------
         if confidence < 0.60:
             st.warning(
                 f"⚠️ Low confidence ({confidence:.0%}). "
-                f"Consider confirming with a soil test."
+                "Consider confirming with a soil test."
             )
 
         st.success(f"### Recommended Crop: **{crop.title()}**")
         st.metric("Confidence Score", f"{confidence:.1%}")
         st.progress(confidence)
 
-        # ------------------------------------------
-        # Top 5 Alternatives
-        # ------------------------------------------
         top_idx = np.argsort(proba)[::-1][:5]
+        top_class_ids = np.asarray(model.classes_)[top_idx].astype(int)
+
         top_df = {
-            "Crop": le.inverse_transform(top_idx),
+            "Crop": le.inverse_transform(top_class_ids),
             "Probability": [f"{p:.2%}" for p in proba[top_idx]],
         }
 
         st.subheader("Top 5 Alternatives")
         st.dataframe(
             top_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     except Exception as e:
         st.error(f"Prediction failed: {type(e).__name__}: {e}")
 
-# --------------------------------------------------
-# Footer
-# --------------------------------------------------
 st.divider()
-
 st.warning(
     "**Responsible AI Notice**\n\n"
-    "This recommendation is advisory only and should "
-    "not replace local soil testing or professional "
-    "agronomic guidance."
+    "This recommendation is advisory only and should not replace "
+    "local soil testing or professional agronomic guidance."
 )
