@@ -30,7 +30,14 @@ def load_artifact():
     if not isinstance(artifact, dict):
         raise TypeError("Expected the model artifact to be a dictionary.")
 
-    required_keys = {"model", "label_encoder", "classes", "n_classes", "test_accuracy"}
+    required_keys = {
+    "model",
+    "scaler",
+    "label_encoder",
+    "classes",
+    "n_classes",
+    "test_accuracy",
+}
     missing = sorted(required_keys - set(artifact.keys()))
     if missing:
         raise KeyError(f"Model artifact missing required keys: {missing}")
