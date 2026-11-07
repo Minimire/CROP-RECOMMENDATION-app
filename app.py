@@ -163,23 +163,20 @@ if submitted:
                 st.stop()
 
         row = np.array(
-            [[N, P, K, temperature, humidity, ph, rainfall]],
-            dtype=np.float32,
-        )
+    [[N, P, K, temperature, humidity, ph, rainfall]],
+    dtype=np.float64,
+)
 
-        if not hasattr(model, "predict_proba"):
-            raise AttributeError("The loaded model does not implement predict_proba().")
+scaled_row = art["scaler"].transform(row)
+proba = model.predict_proba(scaled_row)[0]
 
-        proba = model.predict_proba(row)[0]
+if len(proba) != len(model.classes_):
+    raise ValueError("Model probability output does not match model classes.")
 
-        if len(proba) != len(le.classes_):
-            raise ValueError(
-                f"Probability length mismatch: expected {len(le.classes_)} but got {len(proba)}"
-            )
-
-        idx = int(np.argmax(proba))
-        crop = le.inverse_transform([idx])[0]
-        confidence = float(proba[idx])
+idx = int(np.argmax(proba))
+class_id = int(model.classes_[idx])
+crop = le.inverse_transform([class_id])[0]
+confidence = float(proba[idx])
 
         # ------------------------------------------
         # Results
