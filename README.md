@@ -282,7 +282,7 @@ End-to-end inference test cases verified in Module 5 and re-verified in the depl
 ### Reproduce Locally
 
 ```bash
-git clone https://github.com/<your-username>/crop-recommendation-system.git
+git clone https://github.com/<Minimire>/crop-recommendation-system.git
 cd crop-recommendation-system
 python3 -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
