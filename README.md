@@ -17,7 +17,7 @@
 | **Predecessors** | Module 4 Proposal (approved 26 Sep 2026) · Module 5 README (submitted Oct 2026) |
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
-| **Live Application** | **[https://crop-recomm-app.streamlit.app]** |
+| **Live Application** | **https://crop-recomm-app.streamlit.app** |
 
 ---
 
