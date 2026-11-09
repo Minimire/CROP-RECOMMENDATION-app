@@ -3,7 +3,7 @@
 **Course:** FUSE AI-201 — AI Model Development and Implementation  
 **Group Number:** 11  
 **Live Application:** [https://crop-recomm-app.streamlit.app](https://crop-recomm-app.streamlit.app)  
-**GitHub Repository:** [https://github.com/Minimire/CROP-RECOMMENDATION-app](https://github.com/Minimire/CROP-RECOMMENDATION-app)  
+**GitHub Repository:** [https://github.com/Minimire/CROP-RECOMMENDATION-app](https://github.com/Minimire/CROP-RECOMMENDATION-app)
 
 
 
@@ -17,7 +17,7 @@
 | **Predecessors** | Module 4 Proposal (approved 26 Sep 2026) · Module 5 README (submitted Oct 2026) |
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
-| **Live Application** | **[FILL: Streamlit Cloud URL]** |
+| **Live Application** | **[https://crop-recomm-app.streamlit.app]** |
 
 ---
 
@@ -270,7 +270,7 @@ End-to-end inference test cases verified in Module 5 and re-verified in the depl
 
 ### Live Application
 
-**URL:** **[FILL: Streamlit Cloud URL]** — deployed per Module 4 §10 (MVP on Streamlit Community Cloud or Hugging Face Spaces).
+**URL:**[https://crop-recomm-app.streamlit.app]** — deployed per Module 4 §10 (MVP on Streamlit Community Cloud or Hugging Face Spaces).
 
 ### Deployment Architecture
 
@@ -455,7 +455,7 @@ This section documents where Module 6 implementation diverges from the Module 4 
 - [x] Trained model artifact (`crop_recommendation_model.pkl`)
 - [x] Streamlit application (`app.py`)
 - [x] Dependency manifest (`requirements.txt`)
-- [ ] **Live deployment URL** — **[FILL]**
+- [×] **Live deployment URL** — **[https://crop-recomm-app.streamlit.app]**
 - [ ] **Confusion matrix, SHAP summary, GridSearchCV results** — placed in `artifacts/`
 - [x] **Validation metrics filled** — macro F1, macro recall, top-3, latency, per-fold CV
 - [x] **SVM resolution documented**
