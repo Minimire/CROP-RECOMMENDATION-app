@@ -453,8 +453,8 @@ This section documents where Module 6 implementation diverges from the Module 4 
 - [x] Trained model artifact (`crop_recommendation_model.pkl`)
 - [x] Streamlit application (`app.py`)
 - [x] Dependency manifest (`requirements.txt`)
-- [×] **Live deployment URL** — **[https://crop-recomm-app.streamlit.app]**
-- [ ] **Confusion matrix, SHAP summary, GridSearchCV results** — placed in `artifacts/`
+- [×] **Live deployment URL** — **https://crop-recomm-app.streamlit.app**
+- [×] **Confusion matrix, SHAP summary, GridSearchCV results** — placed in `artifacts/`
 - [x] **Validation metrics filled** — macro F1, macro recall, top-3, latency, per-fold CV
 - [x] **SVM resolution documented**
 - [x] Monitoring plan
