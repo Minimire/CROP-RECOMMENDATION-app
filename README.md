@@ -155,7 +155,7 @@ Models were trained on a stratified 80/20 split (`random_state=42`). Module 5 re
 | Logistic Regression | 97.27% | 97.40% | 97.27% | 97.25% |
 | Dummy Classifier (chance floor) | 4.55% | 0.21% | 4.55% | 0.40% |
 
-**Support Vector Machine (SVM):** Named as a candidate in Module 4 §5/§7/§8 but not trained in the final iteration. The 5-model comparison (Random Forest, XGBoost, KNN, Logistic Regression, Dummy) sufficiently covers ensemble, boosting, distance, linear, and chance baselines.
+**Support Vector Machine (SVM):** Named as a candidate in Module 4 §5/§7/§8 but is trained in the separate iteration with 98.4 accuracy. The 5-model comparison (Random Forest, XGBoost, KNN, Logistic Regression, Dummy) sufficiently covers ensemble, boosting, distance, linear, and chance baselines.
 
 **Champion selection:** The Random Forest was selected for **superior accuracy (99.55%)**, robustness against overfitting, and consistent F1 across all 22 classes. The Dummy Classifier's **4.55%** confirms the chance-level floor for 22 balanced classes (~1/22 = 4.55%), verifying the reported accuracy is not a class-imbalance artifact.
 
