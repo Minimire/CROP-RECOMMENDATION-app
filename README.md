@@ -268,7 +268,7 @@ End-to-end inference test cases verified in Module 5 and re-verified in the depl
 
 ## 🚀 Deployment
 
-### Live Application:**[https://crop-recomm-app.streamlit.app]** — deployed per Module 4 §10 (MVP on Streamlit Community Cloud or Hugging Face Spaces).
+### Live Application:**https://crop-recomm-app.streamlit.app** — deployed per Module 4 §10 (MVP on Streamlit Community Cloud or Hugging Face Spaces).
 
 ### Deployment Architecture
 
