@@ -2,7 +2,7 @@
 
 **Course:** FUSE AI-201 — AI Model Development and Implementation  
 **Group Number:** 11  
-**Live Application:** [https://crop-recomm-app.streamlit.app](https://crop-recomm-app.streamlit.app)  
+**Live Application:** (https://ology-ago-seattle-cheque.trycloudflare.com.))  
 **GitHub Repository:** [https://github.com/Minimire/CROP-RECOMMENDATION-app](https://github.com/Minimire/CROP-RECOMMENDATION-app)
 
 
@@ -17,7 +17,7 @@
 | **Predecessors** | Module 4 Proposal (approved 26 Sep 2026) · Module 5 README (submitted Oct 2026) |
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
-| **Live Application** | **https://crop-recomm-app.streamlit.app** |
+| **Live Application** | **https://ology-ago-seattle-cheque.trycloudflare.com.** |
 
 ---
 
@@ -282,7 +282,7 @@ End-to-end inference test cases verified in Module 5 and re-verified in the depl
 ### Reproduce Locally
 
 ```bash
-git clone https://github.com/<Minimire>/crop-recommendation-system.git
+git clone https://github.com/Minimire/crop-recommendation-system.git
 cd crop-recommendation-system
 python3 -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -453,7 +453,7 @@ This section documents where Module 6 implementation diverges from the Module 4 
 - [x] Trained model artifact (`crop_recommendation_model.pkl`)
 - [x] Streamlit application (`app.py`)
 - [x] Dependency manifest (`requirements.txt`)
-- [×] Live deployment URL — **https://crop-recomm-app.streamlit.app**
+- [×] Live deployment URL — **(https://ology-ago-seattle-cheque.trycloudflare.com.)**
 - [×] **Confusion matrix, SHAP summary, GridSearchCV results** — placed in `artifacts/`
 - [x] **Validation metrics filled** — macro F1, macro recall, top-3, latency, per-fold CV
 - [x] **SVM resolution documented**
