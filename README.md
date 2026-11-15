@@ -466,4 +466,4 @@ This section documents where Module 6 implementation diverges from the Module 4 
 
 ## 📬 Contact
 
-**Group 11** · FUSE AI-201 · [Insert Institution] · November 2026
+**Group 11** · FUSE AI-201 · [FUSE COHORT 201 FLORIDA SOUTH WEST UNIVERSITY] · November 2026
