@@ -461,6 +461,10 @@ This section documents where Module 6 implementation diverges from the Module 4 
 - [x] Maintenance plan
 - [x] References (APA)
 - [x] Module 4 commitments → Module 6 delivery table
+- [×] Model registry with versioned artifacts (MLflow)
+- [×] Automated promotion gate (accuracy + prod comparison)
+- [×] Rollback path (manual + auto health-check)
+☑ Champion/Challenger evaluation hook
 
 ---
 
