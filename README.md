@@ -2,7 +2,9 @@
 
 **Course:** FUSE AI-201 — AI Model Development and Implementation  
 **Group Number:** 11  
-**Live Application:** [https://ology-ago-seattle-cheque.trycloudflare.com](https://ology-ago-seattle-cheque.trycloudflare.com)  
+**Live Application:** [https://terminology-ago-seattle-cheque.trycloudflare.com
+]( https://terminology-ago-seattle-cheque.trycloudflare.com
+)  
 **GitHub Repository:** [https://github.com/Minimire/CROP-RECOMMENDATION-app](https://github.com/Minimire/CROP-RECOMMENDATION-app)
 
 ---
@@ -17,7 +19,9 @@
 | **Predecessors** | Module 4 Proposal (approved 26 Sep 2026) · Module 5 README (submitted Oct 2026) |
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
-| **Live Application** | **[https://ology-ago-seattle-cheque.trycloudflare.com](https://ology-ago-seattle-cheque.trycloudflare.com)** |
+| **Live Application** | **[https://terminology-ago-seattle-cheque.trycloudflare.com
+]( https://terminology-ago-seattle-cheque.trycloudflare.com
+)** |
 
 ---
 
@@ -263,7 +267,8 @@ Observation: High confidence under in-distribution inputs; appropriately reduced
 
 🚀 Deployment
 
-Live Application: https://ology-ago-seattle-cheque.trycloudflare.com
+Live Application: https://terminology-ago-seattle-cheque.trycloudflare.com
+
 
 — deployed via Cloudflare Tunnel for Module 6 execution.
 
@@ -395,7 +400,8 @@ Macro Recall 0.85 0.9955 Validation
 Latency < 1 s 98.01 ms (p95) Validation
 Outperform baselines Yes ✅ Model Comparison
 SVM evaluated Required Excluded — SVM was scoped in Module 4 but not trained in the final iteration; the 5-model comparison (RF, XGBoost, KNN, LR, Dummy) sufficiently covers ensemble, boosting, distance, linear, and chance baselines Model Comparison
-Streamlit Cloud deploy MVP https://ology-ago-seattle-cheque.trycloudflare.com Deployment
+Streamlit Cloud deploy MVP https://terminology-ago-seattle-cheque.trycloudflare.com
+Deployment
 FastAPI / Docker Optional pilot Source in backend/; deployment status noted in §Deployment Deployment
 Confusion matrix Required Embedded Artifacts
 SHAP visuals Required Embedded Artifacts
@@ -444,7 +450,8 @@ Boniyas Wagari QA, boundary testing, drought scenario validation
 ☑ Trained model artifact (crop_recommendation_model.pkl)
 ☑ Streamlit application (app.py)
 ☑ Dependency manifest (requirements.txt)
-☑ Live deployment URL — https://ology-ago-seattle-cheque.trycloudflare.com
+☑ Live deployment URL — https://terminology-ago-seattle-cheque.trycloudflare.com
+
 ☑ Confusion matrix, SHAP summary, GridSearchCV results — placed in artifacts/
 ☑ Validation metrics filled — macro F1, macro recall, top-3, latency, per-fold CV
 ☑ SVM resolution documented
