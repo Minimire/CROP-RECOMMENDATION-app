@@ -20,7 +20,7 @@
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
 | **Live Application:**|[https://terminology-ago-seattle-cheque.trycloudflare.com
-]||( https://terminology-ago-seattle-cheque.trycloudflare.com
+]|( https://terminology-ago-seattle-cheque.trycloudflare.com
 )|
 
 ---
