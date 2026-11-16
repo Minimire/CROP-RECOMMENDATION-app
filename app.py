@@ -7,6 +7,7 @@ from pathlib import Path
 
 import joblib
 import numpy as np
+import pandas as pd
 import streamlit as st
 
 st.set_page_config(
@@ -20,6 +21,7 @@ MODEL_PATH = APP_DIR / "crop_recommendation_model.pkl"
 AUDIT_LOG_PATH = APP_DIR / "audit_log.jsonl"
 
 FEATURE_ORDER = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
+
 
 @st.cache_resource
 def load_artifact():
@@ -53,53 +55,60 @@ def append_audit_log(payload: dict) -> None:
     """Append a prediction event to a JSONL audit file."""
     payload = dict(payload)
     payload["timestamp_utc"] = datetime.now(timezone.utc).isoformat()
-    with AUDIT_LOG_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(payload, default=str) + "\n")
+
+    with AUDIT_LOG_PATH.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(payload, default=str) + "\n")
 
 
 def get_model_metadata(artifact: dict) -> dict:
     """Return a friendly model metadata dictionary."""
-    metadata = {
+    return {
         "model_type": type(artifact["model"]).__name__,
-        "test_accuracy": artifact.get("test_accuracy", None),
+        "test_accuracy": artifact.get("test_accuracy"),
         "classes": list(artifact.get("classes", [])),
         "feature_order": FEATURE_ORDER,
-        "model_name": artifact.get("model_name", "CropRecommendationRandomForest"),
+        "model_name": artifact.get(
+            "model_name", "CropRecommendationRandomForest"
+        ),
         "training_date": artifact.get("training_date", "Not specified"),
     }
-    return metadata
 
 
-def simple_drift_check(values: dict, baseline: dict | None = None) -> str:
-    """
-    Lightweight drift indicator that is human-readable and consistent with the
-    README's monitoring section.
-
-    If the model artifact contains a baseline_stats dictionary, it is used.
-    Otherwise, a safe fallback is returned.
-    """
+def simple_drift_check(
+    values: dict,
+    baseline: dict | None = None,
+) -> str:
+    """Return a simple drift indicator if baseline statistics are available."""
     if not baseline:
         return "Stable (baseline unavailable)"
 
     try:
-        # Simple heuristic using mean comparison
         deviations = []
+
         for key in FEATURE_ORDER:
             if key in values and key in baseline:
                 current_value = float(values[key])
-                mean_val = float(baseline[key].get("mean", current_value))
-                std_val = float(baseline[key].get("std", 1.0))
-                if std_val == 0:
-                    std_val = 1.0
-                z_score = abs(current_value - mean_val) / std_val
+                mean_value = float(
+                    baseline[key].get("mean", current_value)
+                )
+                std_value = float(baseline[key].get("std", 1.0))
+
+                if std_value == 0:
+                    std_value = 1.0
+
+                z_score = abs(current_value - mean_value) / std_value
                 deviations.append(z_score)
+
         if not deviations:
             return "Stable (baseline unavailable)"
-        mean_dev = float(np.mean(deviations))
-        if mean_dev > 3.0:
+
+        mean_deviation = float(np.mean(deviations))
+
+        if mean_deviation > 3.0:
             return "Drift risk detected"
-        if mean_dev > 1.5:
+        if mean_deviation > 1.5:
             return "Watchlist"
+
         return "Stable"
     except Exception:
         return "Stable (baseline unavailable)"
@@ -113,7 +122,7 @@ scaler = artifact["scaler"]
 label_encoder = artifact["label_encoder"]
 model_meta = get_model_metadata(artifact)
 
-# Model compatibility validation
+# Check that the model and label encoder contain the same number of classes.
 if not (
     len(artifact["classes"])
     == artifact["n_classes"]
@@ -126,25 +135,30 @@ if not (
     )
     st.stop()
 
+
 st.title("🌱 Intelligent Crop Recommendation System")
-st.caption(
-    f"FUSE AI-201 | Group 11 | {model_meta['model_type']} "
-    f"({model_meta['test_accuracy']:.2%} test accuracy)"
-    if model_meta["test_accuracy"] is not None
-    else "FUSE AI-201 | Group 11 | Crop Recommendation App"
-)
+
+if model_meta["test_accuracy"] is not None:
+    st.caption(
+        f"FUSE AI-201 | Group 11 | {model_meta['model_type']} "
+        f"({model_meta['test_accuracy']:.2%} test accuracy)"
+    )
+else:
+    st.caption("FUSE AI-201 | Group 11 | Crop Recommendation App")
+
 
 with st.sidebar:
     st.subheader("Model Details")
     st.write(f"Model: {model_meta['model_type']}")
+
     if model_meta["test_accuracy"] is not None:
         st.write(f"Test accuracy: {model_meta['test_accuracy']:.2%}")
+
     st.write(f"Model name: {model_meta['model_name']}")
     st.write(f"Training date: {model_meta['training_date']}")
     st.write("Deployment: https://crop-recomm-app.streamlit.app")
     st.write("Features: " + ", ".join(FEATURE_ORDER))
 
-    # Optional drift baseline if present in model artifact
     baseline = artifact.get("baseline_stats")
     if baseline:
         st.write("Baseline drift check: available")
@@ -154,7 +168,10 @@ with st.sidebar:
     if AUDIT_LOG_PATH.exists():
         st.caption(f"Audit log present: {AUDIT_LOG_PATH.name}")
     else:
-        st.caption("No audit log yet; it will be created when predictions run.")
+        st.caption(
+            "No audit log yet; it will be created when predictions run."
+        )
+
 
 with st.form("crop_form"):
     st.subheader("Soil & Climate Measurements")
@@ -162,17 +179,58 @@ with st.form("crop_form"):
     col1, col2 = st.columns(2)
 
     with col1:
-        N = st.number_input("Nitrogen (N) mg/kg", min_value=0.0, max_value=200.0, value=90.0)
-        P = st.number_input("Phosphorus (P) mg/kg", min_value=0.0, max_value=200.0, value=42.0)
-        K = st.number_input("Potassium (K) mg/kg", min_value=0.0, max_value=250.0, value=43.0)
-        ph = st.slider("Soil pH", min_value=0.0, max_value=14.0, value=6.5, step=0.1)
+        N = st.number_input(
+            "Nitrogen (N) mg/kg",
+            min_value=0.0,
+            max_value=200.0,
+            value=90.0,
+        )
+        P = st.number_input(
+            "Phosphorus (P) mg/kg",
+            min_value=0.0,
+            max_value=200.0,
+            value=42.0,
+        )
+        K = st.number_input(
+            "Potassium (K) mg/kg",
+            min_value=0.0,
+            max_value=250.0,
+            value=43.0,
+        )
+        ph = st.slider(
+            "Soil pH",
+            min_value=0.0,
+            max_value=14.0,
+            value=6.5,
+            step=0.1,
+        )
 
     with col2:
-        temperature = st.number_input("Temperature (°C)", min_value=0.0, max_value=60.0, value=20.8)
-        humidity = st.slider("Humidity (%)", min_value=0.0, max_value=100.0, value=82.0, step=0.1)
-        rainfall = st.number_input("Rainfall (mm)", min_value=0.0, max_value=400.0, value=202.9)
+        temperature = st.number_input(
+            "Temperature (°C)",
+            min_value=0.0,
+            max_value=60.0,
+            value=20.8,
+        )
+        humidity = st.slider(
+            "Humidity (%)",
+            min_value=0.0,
+            max_value=100.0,
+            value=82.0,
+            step=0.1,
+        )
+        rainfall = st.number_input(
+            "Rainfall (mm)",
+            min_value=0.0,
+            max_value=400.0,
+            value=202.9,
+        )
 
-    submitted = st.form_submit_button("🌾 Recommend Crop", use_container_width=True)
+    submitted = st.form_submit_button(
+        "🌾 Recommend Crop",
+        use_container_width=True,
+    )
+
 
 if submitted:
     try:
@@ -194,21 +252,23 @@ if submitted:
                 )
                 st.stop()
 
-        row = np.array(
+        # Keep the feature names and ordering consistent with model training.
+        row = pd.DataFrame(
             [[N, P, K, temperature, humidity, ph, rainfall]],
-            dtype=np.float64,
+            columns=FEATURE_ORDER,
         )
-
         scaled_row = scaler.transform(row)
-        proba = model.predict_proba(scaled_row)[0]
+        probabilities = model.predict_proba(scaled_row)[0]
 
-        if len(proba) != len(model.classes_):
-            raise ValueError("Model probability output does not match model classes.")
+        if len(probabilities) != len(model.classes_):
+            raise ValueError(
+                "Model probability output does not match model classes."
+            )
 
-        idx = int(np.argmax(proba))
-        class_id = int(model.classes_[idx])
+        best_index = int(np.argmax(probabilities))
+        class_id = int(model.classes_[best_index])
         crop = label_encoder.inverse_transform([class_id])[0]
-        confidence = float(proba[idx])
+        confidence = float(probabilities[best_index])
 
         current_values = {
             "N": float(N),
@@ -219,8 +279,12 @@ if submitted:
             "ph": float(ph),
             "rainfall": float(rainfall),
         }
+
         baseline_stats = artifact.get("baseline_stats")
-        drift_status = simple_drift_check(current_values, baseline_stats)
+        drift_status = simple_drift_check(
+            current_values,
+            baseline_stats,
+        )
 
         if confidence < 0.60:
             st.warning(
@@ -231,37 +295,42 @@ if submitted:
         st.success(f"### Recommended Crop: **{crop.title()}**")
         st.metric("Confidence Score", f"{confidence:.1%}")
         st.progress(confidence)
-
         st.caption(f"Drift status: {drift_status}")
 
-        top_idx = np.argsort(proba)[::-1][:5]
-        top_class_ids = np.asarray(model.classes_)[top_idx].astype(int)
-        top_df = {
-            "Crop": label_encoder.inverse_transform(top_class_ids),
-            "Probability": [f"{p:.2%}" for p in proba[top_idx]],
-        }
+        top_indices = np.argsort(probabilities)[::-1][:5]
+        top_class_ids = np.asarray(model.classes_)[
+            top_indices
+        ].astype(int)
+
+        top_crops = label_encoder.inverse_transform(top_class_ids)
+        top_table = pd.DataFrame(
+            {
+                "Crop": top_crops,
+                "Probability": [
+                    f"{probability:.2%}"
+                    for probability in probabilities[top_indices]
+                ],
+            }
+        )
 
         st.subheader("Top 5 Alternatives")
-        st.dataframe(top_df, width="stretch", hide_index=True)
+        st.dataframe(
+            top_table,
+            use_container_width=True,
+            hide_index=True,
+        )
 
-        # Audit logging
         append_audit_log(
             {
                 "input_values": current_values,
-                "predicted_crop": crop,
+                "predicted_crop": str(crop),
                 "confidence": confidence,
-                "top_5": [str(x) for x in label_encoder.inverse_transform(top_class_ids)],
+                "top_5": [str(item) for item in top_crops],
                 "drift_status": drift_status,
                 "model_name": model_meta["model_name"],
             }
         )
 
-    except Exception as e:
-        st.error(f"Prediction failed: {type(e).__name__}: {e}")
-
-st.divider()
-st.warning(
-    "**Responsible AI Notice**\n\n"
-    "This recommendation is advisory only and should not replace "
-    "local soil testing or professional agronomic guidance."
-)
+    except Exception as error:
+        st.error(
+            f"Prediction failed: {type(error).__name__}: {error
