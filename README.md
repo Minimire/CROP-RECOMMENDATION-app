@@ -19,7 +19,8 @@
 | **Predecessors** | Module 4 Proposal (approved 26 Sep 2026) · Module 5 README (submitted Oct 2026) |
 | **Submission Date** | November 2026 |
 | **Primary Model** | Random Forest Classifier — 99.55% test accuracy |
-|**LiveApplication:** | [https://crop-recomm-app.streamlit.app/]( https://crop-recomm-app.streamlit.app/)|
+|**LiveApplication:** | [https://crop-recomm-app.streamlit.app]
+:**|( https://crop-recomm-app.streamlit.app)|
 
 ---
 
@@ -265,7 +266,7 @@ Observation: High confidence under in-distribution inputs; appropriately reduced
 
 🚀 Deployment
 
-Live Application: https://crop-recomm-app.streamlit.app/
+Live Application: https://crop-recomm-app.streamlit.app
 
 
 — deployed via Cloudflare Tunnel for Module 6 execution.
@@ -446,20 +447,33 @@ Boniyas Wagari QA, boundary testing, drought scenario validation
 📦 Submission Checklist
 
 ☑ Trained model artifact (crop_recommendation_model.pkl)
+
 ☑ Streamlit application (app.py)
+
 ☑ Dependency manifest (requirements.txt)
-☑ Live deployment URL — https://crop-recomm-app.streamlit.app/
+
+☑ Live deployment URL:-https://crop-recomm-app.streamlit.app
 
 ☑ Confusion matrix, SHAP summary, GridSearchCV results — placed in artifacts/
+
 ☑ Validation metrics filled — macro F1, macro recall, top-3, latency, per-fold CV
+
 ☑ SVM resolution documented
+
 ☑ Monitoring plan
+
 ☑ Maintenance plan
+
 ☑ References (APA)
+
 ☑ Module 4 commitments → Module 6 delivery table
+table
 ☑ Model registry with versioned artifacts (MLflow)
+
 ☑ Automated promotion gate (accuracy + prod comparison)
+
 ☑ Rollback path (manual + auto health-check)
+
 ☑ Champion/Challenger evaluation hook
 
 ---
