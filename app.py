@@ -67,17 +67,12 @@ def get_model_metadata(artifact: dict) -> dict:
         "test_accuracy": artifact.get("test_accuracy"),
         "classes": list(artifact.get("classes", [])),
         "feature_order": FEATURE_ORDER,
-        "model_name": artifact.get(
-            "model_name", "CropRecommendationRandomForest"
-        ),
+        "model_name": artifact.get("model_name", "CropRecommendationRandomForest"),
         "training_date": artifact.get("training_date", "Not specified"),
     }
 
 
-def simple_drift_check(
-    values: dict,
-    baseline: dict | None = None,
-) -> str:
+def simple_drift_check(values: dict, baseline: dict | None = None) -> str:
     """Return a simple drift indicator if baseline statistics are available."""
     if not baseline:
         return "Stable (baseline unavailable)"
@@ -88,9 +83,7 @@ def simple_drift_check(
         for key in FEATURE_ORDER:
             if key in values and key in baseline:
                 current_value = float(values[key])
-                mean_value = float(
-                    baseline[key].get("mean", current_value)
-                )
+                mean_value = float(baseline[key].get("mean", current_value))
                 std_value = float(baseline[key].get("std", 1.0))
 
                 if std_value == 0:
@@ -122,7 +115,7 @@ scaler = artifact["scaler"]
 label_encoder = artifact["label_encoder"]
 model_meta = get_model_metadata(artifact)
 
-# Check that the model and label encoder contain the same number of classes.
+# Model compatibility validation
 if not (
     len(artifact["classes"])
     == artifact["n_classes"]
@@ -134,7 +127,6 @@ if not (
         "do not have the same number of classes."
     )
     st.stop()
-
 
 st.title("🌱 Intelligent Crop Recommendation System")
 
@@ -168,9 +160,7 @@ with st.sidebar:
     if AUDIT_LOG_PATH.exists():
         st.caption(f"Audit log present: {AUDIT_LOG_PATH.name}")
     else:
-        st.caption(
-            "No audit log yet; it will be created when predictions run."
-        )
+        st.caption("No audit log yet; it will be created when predictions run.")
 
 
 with st.form("crop_form"):
@@ -252,7 +242,6 @@ if submitted:
                 )
                 st.stop()
 
-        # Keep the feature names and ordering consistent with model training.
         row = pd.DataFrame(
             [[N, P, K, temperature, humidity, ph, rainfall]],
             columns=FEATURE_ORDER,
@@ -261,9 +250,7 @@ if submitted:
         probabilities = model.predict_proba(scaled_row)[0]
 
         if len(probabilities) != len(model.classes_):
-            raise ValueError(
-                "Model probability output does not match model classes."
-            )
+            raise ValueError("Model probability output does not match model classes.")
 
         best_index = int(np.argmax(probabilities))
         class_id = int(model.classes_[best_index])
@@ -281,10 +268,7 @@ if submitted:
         }
 
         baseline_stats = artifact.get("baseline_stats")
-        drift_status = simple_drift_check(
-            current_values,
-            baseline_stats,
-        )
+        drift_status = simple_drift_check(current_values, baseline_stats)
 
         if confidence < 0.60:
             st.warning(
@@ -298,27 +282,20 @@ if submitted:
         st.caption(f"Drift status: {drift_status}")
 
         top_indices = np.argsort(probabilities)[::-1][:5]
-        top_class_ids = np.asarray(model.classes_)[
-            top_indices
-        ].astype(int)
-
+        top_class_ids = np.asarray(model.classes_)[top_indices].astype(int)
         top_crops = label_encoder.inverse_transform(top_class_ids)
+
         top_table = pd.DataFrame(
             {
                 "Crop": top_crops,
                 "Probability": [
-                    f"{probability:.2%}"
-                    for probability in probabilities[top_indices]
+                    f"{probability:.2%}" for probability in probabilities[top_indices]
                 ],
             }
         )
 
         st.subheader("Top 5 Alternatives")
-        st.dataframe(
-            top_table,
-            use_container_width=True,
-            hide_index=True,
-        )
+        st.dataframe(top_table, use_container_width=True, hide_index=True)
 
         append_audit_log(
             {
@@ -332,5 +309,12 @@ if submitted:
         )
 
     except Exception as error:
-        st.error(
-            f"Prediction failed: {type(error).__name__}: {error
+        st.error(f"Prediction failed: {type(error).__name__}: {error}")
+
+
+st.divider()
+st.warning(
+    "**Responsible AI Notice**\n\n"
+    "This recommendation is advisory only and should not replace "
+    "local soil testing or professional agronomic guidance."
+)
